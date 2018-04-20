@@ -1,0 +1,125 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using UnityEngine;
+using UnityEngine.Networking;
+
+namespace Idellio.Networking.MonoBehaviours
+{
+    public abstract class BaseNetworkClient : MonoBehaviour
+    {
+        [Header("Settings")]
+        public int TickRate = 32;
+        public ushort MaxPacketSize = 4096;
+
+        private bool _Initialized { get; set; }
+        private bool _Connected { get; set; }
+
+        private int _HostId { get; set; }
+        private int _ConnectionId { get; set; }
+
+
+        private float _TimeSinceLastTick { get; set; }
+
+
+        private GlobalConfig _GlobalConfig { get; set; }
+        private ConnectionConfig _ConnectionConfig { get; set; }
+        private HostTopology _HostTopology { get; set; }
+
+        void Awake()
+        {
+            Initialize();
+        }
+
+        void Update()
+        {
+            if (_Initialized)
+            {
+                if (_Connected)
+                {
+                    ClientTick();
+                    _TimeSinceLastTick += Time.deltaTime;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Initialize IDNS
+        /// </summary>
+        private void Initialize()
+        {
+            if (_Initialized) throw new Exception("[IDNS-Client] Error: Already initialized.");
+
+            //Setup globalconfig
+            _GlobalConfig = new GlobalConfig();
+            _GlobalConfig.MaxPacketSize = MaxPacketSize;
+            NetworkTransport.Init(_GlobalConfig);
+
+            //Setup Channels
+            _ConnectionConfig = new ConnectionConfig();
+            _ConnectionConfig.AddChannel(QosType.Unreliable);
+            _ConnectionConfig.AddChannel(QosType.UnreliableFragmented);
+            _ConnectionConfig.AddChannel(QosType.UnreliableSequenced);
+            _ConnectionConfig.AddChannel(QosType.Reliable);
+            _ConnectionConfig.AddChannel(QosType.ReliableFragmented);
+            _ConnectionConfig.AddChannel(QosType.ReliableSequenced);
+            _ConnectionConfig.AddChannel(QosType.StateUpdate);
+            _ConnectionConfig.AddChannel(QosType.ReliableStateUpdate);
+            _ConnectionConfig.AddChannel(QosType.AllCostDelivery);
+            _ConnectionConfig.AddChannel(QosType.UnreliableFragmentedSequenced);
+            _ConnectionConfig.AddChannel(QosType.ReliableFragmentedSequenced);
+
+            _Initialized = true;
+        }
+
+        /// <summary>
+        /// Connect to a server
+        /// </summary>
+        /// <param name="ip">Ip to connect to.</param>
+        /// <param name="port">Port to connect to.</param>
+        public void Connect(string ip, int port)
+        {
+            if (_Connected || !_Initialized) throw new Exception("[IDNS-Server] Error Starting Server.");
+
+            _HostTopology = new HostTopology(_ConnectionConfig, 1);
+            _HostId = NetworkTransport.AddHost(_HostTopology, 0); //0 Tells the LLAPI to pick a random port
+
+            byte error;
+            _ConnectionId = NetworkTransport.Connect(_HostId, ip, port, 0, out error);
+            _Connected = true;
+            Debug.Log($"[IDNS-Client] Connecting to server @{ip}:{port}.....");
+        }
+
+        private void ClientTick()
+        {
+            if (_TimeSinceLastTick >= (1 / (float)TickRate))
+            {
+                if (!_Connected || !_Initialized) throw new Exception("[IDNS-Client] Error Running Server Tick.");
+                byte err;
+                int connectionId;
+                int channelId;
+                byte[] recBuffer = new byte[MaxPacketSize];
+                int bufferSize = MaxPacketSize;
+                int dataSize;
+                byte error;
+                int size = NetworkTransport.GetIncomingMessageQueueSize(_HostId, out err) + 1;
+                for (int i = 0; i < size; i++)
+                {
+                    NetworkEventType recData = NetworkTransport.ReceiveFromHost(_HostId, out connectionId, out channelId, recBuffer, bufferSize, out dataSize, out error);
+                    switch (recData)
+                    {
+                        case NetworkEventType.Nothing:         //1
+                            break;
+                        case NetworkEventType.ConnectEvent:    //2
+                            break;
+                        case NetworkEventType.DataEvent:       //3
+                            break;
+                        case NetworkEventType.DisconnectEvent: //4
+                            break;
+                    }
+                }
+            }
+        }
+    }
+}
