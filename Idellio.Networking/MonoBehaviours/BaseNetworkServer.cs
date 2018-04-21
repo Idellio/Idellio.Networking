@@ -10,11 +10,11 @@ namespace Idellio.Networking.MonoBehaviours
     public abstract class BaseNetworkServer : MonoBehaviour
     {
         [Header("Settings")]
-        public int TickRate = 32;
-        public ushort MaxPacketSize = 4096;
+        public int TickRate = 64;
+        public ushort MaxPacketSize = 65535;
 
-        internal bool _Initialized { get; set; }
-        internal bool _Hosting { get; set; }
+        internal bool _Initialized { get; private set; }
+        internal bool _Hosting { get; private set; }
 
         public static BaseNetworkServer Instance { get; private set; }
 
@@ -128,7 +128,7 @@ namespace Idellio.Networking.MonoBehaviours
             }
         }
 
-        internal void RegisterMonobehaviour(BaseNetworkBehaviour baseNetworkBehaviour)
+        internal static void RegisterMonobehaviour(BaseNetworkBehaviour baseNetworkBehaviour)
         {
             Debug.Log("[IDNS-Server] Monobehaviour Registered.");
         }

@@ -37,11 +37,11 @@ namespace Idellio.Networking.MonoBehaviours
         {
             if (isServer)
             {
-                BaseNetworkServer.Instance.RegisterMonobehaviour(this);
+                BaseNetworkServer.RegisterMonobehaviour(this);
             }
             if (isClient)
             {
-                BaseNetworkClient.Instance.RegisterMonobehaviour(this);
+                BaseNetworkClient.RegisterMonobehaviour(this);
             }
         }
     }
