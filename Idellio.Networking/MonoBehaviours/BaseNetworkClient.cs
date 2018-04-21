@@ -13,13 +13,13 @@ namespace Idellio.Networking.MonoBehaviours
         public int TickRate = 32;
         public ushort MaxPacketSize = 4096;
 
-        private bool _Initialized { get; set; }
-        private bool _Connected { get; set; }
+        internal bool _Initialized { get; set; }
+        internal bool _Connected { get; set; }
+
+        public static BaseNetworkClient Instance { get; private set; }
 
         private int _HostId { get; set; }
         private int _ConnectionId { get; set; }
-
-
         private float _TimeSinceLastTick { get; set; }
 
 
@@ -27,9 +27,14 @@ namespace Idellio.Networking.MonoBehaviours
         private ConnectionConfig _ConnectionConfig { get; set; }
         private HostTopology _HostTopology { get; set; }
 
+
+        private List<BaseNetworkBehaviour> _NetworkBehaviours { get; set; }
+
+
         void Awake()
         {
             Initialize();
+            _TimeSinceLastTick = 0f;
         }
 
         void Update()
@@ -69,6 +74,9 @@ namespace Idellio.Networking.MonoBehaviours
             _ConnectionConfig.AddChannel(QosType.AllCostDelivery);
             _ConnectionConfig.AddChannel(QosType.UnreliableFragmentedSequenced);
             _ConnectionConfig.AddChannel(QosType.ReliableFragmentedSequenced);
+
+            _NetworkBehaviours = new List<BaseNetworkBehaviour>();
+            Instance = this;
 
             _Initialized = true;
         }
@@ -120,6 +128,11 @@ namespace Idellio.Networking.MonoBehaviours
                     }
                 }
             }
+        }
+
+        internal void RegisterMonobehaviour(BaseNetworkBehaviour baseNetworkBehaviour)
+        {
+            Debug.Log("[IDNS-Client] Monobehaviour Registered.");
         }
     }
 }

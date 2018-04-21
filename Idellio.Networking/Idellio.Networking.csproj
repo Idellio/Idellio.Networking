@@ -44,6 +44,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MonoBehaviours\BaseNetworkBehaviour.cs" />
     <Compile Include="MonoBehaviours\BaseNetworkClient.cs" />
     <Compile Include="MonoBehaviours\BaseNetworkServer.cs" />
     <Compile Include="Enums\Channels.cs" />
