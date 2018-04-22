@@ -137,6 +137,30 @@ namespace Idellio.Networking.MonoBehaviours
             Debug.Log("[IDNS-Server] Monobehaviour Registered.");
         }
 
+        public NetworkConnection GetNetworkConnection(int ConnectionId)
+        {
+            NetworkConnection connection = null;
+            foreach(var conn in _Connections)
+            {
+                if (conn.ConnectionId == ConnectionId)
+                    connection = conn;
+            }
+
+            return connection;
+        }
+
+        public NetworkConnection GetNetworkConnection(string AuthId)
+        {
+            NetworkConnection connection = null;
+            foreach (var conn in _Connections)
+            {
+                if (conn.AuthId == AuthId)
+                    connection = conn;
+            }
+
+            return connection;
+        }
+
         public static int GetPing(NetworkConnection client)
         {
             byte err;
