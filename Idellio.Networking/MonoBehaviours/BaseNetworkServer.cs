@@ -137,6 +137,11 @@ namespace Idellio.Networking.MonoBehaviours
             Debug.Log("[IDNS-Server] Monobehaviour Registered.");
         }
 
+        /// <summary>
+        /// Get the networkconnection associated with the specified connection id.
+        /// </summary>
+        /// <param name="ConnectionId"></param>
+        /// <returns></returns>
         public NetworkConnection GetNetworkConnection(int ConnectionId)
         {
             NetworkConnection connection = null;
@@ -149,6 +154,11 @@ namespace Idellio.Networking.MonoBehaviours
             return connection;
         }
 
+        /// <summary>
+        /// Get the networkconnection associated with the specif auth id.
+        /// </summary>
+        /// <param name="AuthId"></param>
+        /// <returns></returns>
         public NetworkConnection GetNetworkConnection(string AuthId)
         {
             NetworkConnection connection = null;
@@ -161,6 +171,11 @@ namespace Idellio.Networking.MonoBehaviours
             return connection;
         }
 
+        /// <summary>
+        /// Get the ping for a specified networkconnection (Round trip)
+        /// </summary>
+        /// <param name="client">Client you want to get the ping for</param>
+        /// <returns>Round trip ping in milliseconds</returns>
         public static int GetPing(NetworkConnection client)
         {
             byte err;
