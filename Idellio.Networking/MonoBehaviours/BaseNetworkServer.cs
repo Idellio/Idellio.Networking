@@ -13,8 +13,8 @@ namespace Idellio.Networking.MonoBehaviours
         public int TickRate = 64;
         public ushort MaxPacketSize = 65535;
 
-        internal bool _Initialized { get; private set; }
-        internal bool _Hosting { get; private set; }
+        internal bool Initialized { get; private set; }
+        internal bool Hosting { get; private set; }
 
         public static BaseNetworkServer Instance { get; private set; }
 
@@ -27,6 +27,7 @@ namespace Idellio.Networking.MonoBehaviours
 
 
         private List<BaseNetworkBehaviour> _NetworkBehaviours { get; set; }
+        private List<NetworkConnection> _Connections { get; set; }
 
 
         void Awake()
@@ -37,9 +38,9 @@ namespace Idellio.Networking.MonoBehaviours
 
         void Update()
         {
-            if (_Initialized)
+            if (Initialized)
             {
-                if (_Hosting)
+                if (Hosting)
                 {
                     ServerTick();
                     _TimeSinceLastTick += Time.deltaTime;
@@ -53,7 +54,7 @@ namespace Idellio.Networking.MonoBehaviours
         /// </summary>
         private void Initialize()
         {
-            if (_Initialized) throw new Exception("[IDNS-Server] Error: Already initialized.");
+            if (Initialized) throw new Exception("[IDNS-Server] Error: Already initialized.");
 
             //Setup globalconfig
             _GlobalConfig = new GlobalConfig();
@@ -77,10 +78,9 @@ namespace Idellio.Networking.MonoBehaviours
             _ConnectionConfig.AddChannel(QosType.UnreliableFragmentedSequenced);
             _ConnectionConfig.AddChannel(QosType.ReliableFragmentedSequenced);
 
-            _NetworkBehaviours = new List<BaseNetworkBehaviour>();
             Instance = this;
 
-            _Initialized = true;
+            Initialized = true;
         }
 
         /// <summary>
@@ -89,11 +89,13 @@ namespace Idellio.Networking.MonoBehaviours
         /// <param name="port">Port for the server to listen on.</param>
         public void StartServer(int port)
         {
-            if (_Hosting || !_Initialized) throw new Exception("[IDNS-Server] Error Starting Server.");
+            if (Hosting || !Initialized) throw new Exception("[IDNS-Server] Error Starting Server.");
 
             _HostTopology = new HostTopology(_ConnectionConfig, 100);
             _HostId = NetworkTransport.AddHost(_HostTopology, port);
-            _Hosting = true;
+            _NetworkBehaviours = new List<BaseNetworkBehaviour>();
+            _Connections = new List<NetworkConnection>();
+            Hosting = true;
 
             Debug.Log($"[IDNS-Server] Listening on port {port}.");
         }
@@ -101,7 +103,7 @@ namespace Idellio.Networking.MonoBehaviours
         private void ServerTick()
         {
             if (_TimeSinceLastTick >= (1 / (float)TickRate)) {
-                if (!_Hosting || !_Initialized) throw new Exception("[IDNS-Server] Error Running Server Tick.");
+                if (!Hosting || !Initialized) throw new Exception("[IDNS-Server] Error Running Server Tick.");
                 byte err;
                 int connectionId;
                 int channelId;
@@ -118,6 +120,7 @@ namespace Idellio.Networking.MonoBehaviours
                         case NetworkEventType.Nothing:         //1
                             break;
                         case NetworkEventType.ConnectEvent:    //2
+                            _Connections.Add(new NetworkConnection(connectionId));
                             break;
                         case NetworkEventType.DataEvent:       //3
                             break;
@@ -132,6 +135,12 @@ namespace Idellio.Networking.MonoBehaviours
         internal static void RegisterMonobehaviour(BaseNetworkBehaviour baseNetworkBehaviour)
         {
             Debug.Log("[IDNS-Server] Monobehaviour Registered.");
+        }
+
+        public static int GetPing(NetworkConnection client)
+        {
+            byte err;
+            return NetworkTransport.GetCurrentRTT(Instance._HostId, client.ConnectionId, out err);
         }
     }
 }

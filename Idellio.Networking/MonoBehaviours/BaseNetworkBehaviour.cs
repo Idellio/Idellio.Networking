@@ -16,7 +16,7 @@ namespace Idellio.Networking.MonoBehaviours
             get {
                 if (BaseNetworkServer.Instance == null)
                     return false;
-                return BaseNetworkServer.Instance._Hosting;
+                return BaseNetworkServer.Instance.Hosting;
             }
         }
 
@@ -29,7 +29,7 @@ namespace Idellio.Networking.MonoBehaviours
             {
                 if (BaseNetworkClient.Instance == null)
                     return false;
-                return BaseNetworkClient.Instance._Connected;
+                return BaseNetworkClient.Instance.Connected;
             }
         }
 

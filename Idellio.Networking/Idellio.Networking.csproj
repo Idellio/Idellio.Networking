@@ -44,10 +44,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Enums\ConnectionState.cs" />
     <Compile Include="MonoBehaviours\BaseNetworkBehaviour.cs" />
     <Compile Include="MonoBehaviours\BaseNetworkClient.cs" />
     <Compile Include="MonoBehaviours\BaseNetworkServer.cs" />
     <Compile Include="Enums\Channels.cs" />
+    <Compile Include="NetworkConnection.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup />

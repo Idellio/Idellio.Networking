@@ -13,8 +13,8 @@ namespace Idellio.Networking.MonoBehaviours
         public int TickRate = 64;
         public ushort MaxPacketSize = 65535;
 
-        internal bool _Initialized { get; private set; }
-        internal bool _Connected { get; private set; }
+        internal bool Initialized { get; private set; }
+        internal bool Connected { get; private set; }
 
         public static BaseNetworkClient Instance { get; private set; }
 
@@ -39,9 +39,9 @@ namespace Idellio.Networking.MonoBehaviours
 
         void Update()
         {
-            if (_Initialized)
+            if (Initialized)
             {
-                if (_Connected)
+                if (Connected)
                 {
                     ClientTick();
                     _TimeSinceLastTick += Time.deltaTime;
@@ -54,7 +54,7 @@ namespace Idellio.Networking.MonoBehaviours
         /// </summary>
         private void Initialize()
         {
-            if (_Initialized) throw new Exception("[IDNS-Client] Error: Already initialized.");
+            if (Initialized) throw new Exception("[IDNS-Client] Error: Already initialized.");
 
             //Setup globalconfig
             _GlobalConfig = new GlobalConfig();
@@ -78,7 +78,7 @@ namespace Idellio.Networking.MonoBehaviours
             _NetworkBehaviours = new List<BaseNetworkBehaviour>();
             Instance = this;
 
-            _Initialized = true;
+            Initialized = true;
         }
 
         /// <summary>
@@ -88,14 +88,14 @@ namespace Idellio.Networking.MonoBehaviours
         /// <param name="port">Port to connect to.</param>
         public void Connect(string ip, int port)
         {
-            if (_Connected || !_Initialized) throw new Exception("[IDNS-Server] Error Starting Server.");
+            if (Connected || !Initialized) throw new Exception("[IDNS-Server] Error Starting Server.");
 
             _HostTopology = new HostTopology(_ConnectionConfig, 1);
             _HostId = NetworkTransport.AddHost(_HostTopology, 0); //0 Tells the LLAPI to pick a random port
 
             byte error;
             _ConnectionId = NetworkTransport.Connect(_HostId, ip, port, 0, out error);
-            _Connected = true;
+            Connected = true;
             Debug.Log($"[IDNS-Client] Connecting to server @{ip}:{port}.....");
         }
 
@@ -103,7 +103,7 @@ namespace Idellio.Networking.MonoBehaviours
         {
             if (_TimeSinceLastTick >= (1 / (float)TickRate))
             {
-                if (!_Connected || !_Initialized) throw new Exception("[IDNS-Client] Error Running Server Tick.");
+                if (!Connected || !Initialized) throw new Exception("[IDNS-Client] Error Running Server Tick.");
                 byte err;
                 int connectionId;
                 int channelId;
