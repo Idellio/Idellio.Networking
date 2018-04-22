@@ -33,7 +33,7 @@ namespace Idellio.Networking.MonoBehaviours
             }
         }
 
-        void Awake()
+        internal virtual void Awake()
         {
             if (isServer)
             {
