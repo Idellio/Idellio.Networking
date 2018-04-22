@@ -125,6 +125,7 @@ namespace Idellio.Networking.MonoBehaviours
                             break;
                     }
                 }
+                _TimeSinceLastTick = 0f;
             }
         }
 
