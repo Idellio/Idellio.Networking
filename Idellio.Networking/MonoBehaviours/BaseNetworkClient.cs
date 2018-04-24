@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Idellio.Networking.Packets;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -29,6 +30,7 @@ namespace Idellio.Networking.MonoBehaviours
 
 
         private List<BaseNetworkBehaviour> _NetworkBehaviours { get; set; }
+        private List<NetworkMessage> _IncomingPackets { get; set; }
 
 
         void Awake()
@@ -103,33 +105,39 @@ namespace Idellio.Networking.MonoBehaviours
         {
             if (_TimeSinceLastTick >= (1 / (float)TickRate))
             {
-                if (!Connected || !Initialized) throw new Exception("[IDNS-Client] Error Running Server Tick.");
-                byte err;
-                int connectionId;
-                int channelId;
-                byte[] recBuffer = new byte[MaxPacketSize];
-                int bufferSize = MaxPacketSize;
-                int dataSize;
-                byte error;
-                int size = NetworkTransport.GetIncomingMessageQueueSize(_HostId, out err) + 1;
-                for (int i = 0; i < size; i++)
-                {
-                    NetworkEventType recData = NetworkTransport.ReceiveFromHost(_HostId, out connectionId, out channelId, recBuffer, bufferSize, out dataSize, out error);
-                    switch (recData)
-                    {
-                        case NetworkEventType.Nothing:         //1
-                            break;
-                        case NetworkEventType.ConnectEvent:    //2
-                            break;
-                        case NetworkEventType.DataEvent:       //3
-                            break;
-                        case NetworkEventType.DisconnectEvent: //4
-                            break;
-                    }
-                }
+                ReceiveIncomingPackets();
                 _TimeSinceLastTick = 0f;
             }
         }
+
+        private void ReceiveIncomingPackets()
+        {
+            if (!Connected || !Initialized) throw new Exception("[IDNS-Client] Error Running Server Tick.");
+            byte err;
+            int connectionId;
+            int channelId;
+            byte[] recBuffer = new byte[MaxPacketSize];
+            int bufferSize = MaxPacketSize;
+            int dataSize;
+            byte error;
+            int size = NetworkTransport.GetIncomingMessageQueueSize(_HostId, out err) + 1;
+            for (int i = 0; i < size; i++)
+            {
+                NetworkEventType recData = NetworkTransport.ReceiveFromHost(_HostId, out connectionId, out channelId, recBuffer, bufferSize, out dataSize, out error);
+                switch (recData)
+                {
+                    case NetworkEventType.Nothing:         //1
+                        break;
+                    case NetworkEventType.ConnectEvent:    //2
+                        break;
+                    case NetworkEventType.DataEvent:       //3
+                        break;
+                    case NetworkEventType.DisconnectEvent: //4
+                        break;
+                }
+            }
+        }
+
 
         internal static void RegisterMonobehaviour(BaseNetworkBehaviour baseNetworkBehaviour)
         {
